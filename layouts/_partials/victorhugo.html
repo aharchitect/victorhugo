@@ -1022,6 +1022,53 @@
           return duplicates;
         }
 
+        function victorhugo__findRepeatedPhrases(text) {
+          var words = (text || '').toLowerCase()
+            .replace(/['’]s\b/g, '')
+            .replace(/[^\w\s-]/g, ' ')
+            .split(/\s+/)
+            .map(function(word) { return word.replace(/^-+|-+$/g, ''); })
+            .filter(Boolean);
+          var stopwordMap = {};
+          var phraseCounts = {};
+
+          stopwords.forEach(function(stopword) {
+            stopwordMap[stopword] = true;
+          });
+
+          [3, 4, 5].forEach(function(size) {
+            for (var index = 0; index <= words.length - size; index += 1) {
+              var phraseWords = words.slice(index, index + size);
+              var meaningfulWords = phraseWords.filter(function(word) {
+                return !stopwordMap[word] && word.length > 2;
+              });
+              var phrase = phraseWords.join(' ');
+              var startsWithStopword = stopwordMap[phraseWords[0]];
+              var endsWithStopword = stopwordMap[phraseWords[phraseWords.length - 1]];
+              var repeatedSameRoot = meaningfulWords.length > 1 && meaningfulWords.every(function(word) {
+                return word === meaningfulWords[0];
+              });
+
+              if (meaningfulWords.length < 2 || phrase.length < 12) continue;
+              if (startsWithStopword || endsWithStopword || repeatedSameRoot) continue;
+              if (focusKeyword && phrase.indexOf(focusKeyword) !== -1) continue;
+
+              phraseCounts[phrase] = (phraseCounts[phrase] || 0) + 1;
+            }
+          });
+
+          return Object.keys(phraseCounts).filter(function(phrase) {
+            return phraseCounts[phrase] >= 3;
+          }).map(function(phrase) {
+            return {
+              phrase: phrase,
+              count: phraseCounts[phrase]
+            };
+          }).sort(function(left, right) {
+            return right.count - left.count || right.phrase.length - left.phrase.length;
+          }).slice(0, 8);
+        }
+
         var victorhugo__wordCount = victorhugo__countWords(victorhugo__pageText);
         var victorhugo__headingCount = victorhugo__article ? victorhugo__article.querySelectorAll('h1,h2,h3,h4,h5,h6').length : 0;
         var victorhugo__contentSections = victorhugo__getContentSections(victorhugo__article);
@@ -1100,8 +1147,23 @@
         );
         var victorhugo__duplicateParagraphs = victorhugo__findDuplicates(victorhugo__paragraphTexts);
         var victorhugo__duplicateHeadings = victorhugo__findDuplicates(victorhugo__headingTexts);
+        var victorhugo__repeatedPhrases = victorhugo__findRepeatedPhrases(victorhugo__pageText);
+        var victorhugo__warningPhrases = victorhugo__repeatedPhrases.filter(function(item) {
+          return item.count >= 5;
+        });
+        var victorhugo__hintPhrases = victorhugo__repeatedPhrases.filter(function(item) {
+          return item.count >= 3 && item.count < 5;
+        });
+        var victorhugo__repeatedPhrasesHtml = '';
 
-        if (victorhugo__duplicateParagraphs.length || victorhugo__duplicateHeadings.length) {
+        if (victorhugo__repeatedPhrases.length) {
+          victorhugo__repeatedPhrasesHtml = '<ul class="victorhugo_insight_sublist">' + victorhugo__repeatedPhrases.map(function(item) {
+            var itemClass = item.count >= 5 ? 'victorhugo_insight_item_improve' : 'victorhugo_insight_item_hint';
+            return '<li class="' + itemClass + '"><code>' + victorhugo__escapeHtml(item.phrase) + '</code>: <strong>' + item.count + '</strong> times</li>';
+          }).join('') + '</ul>';
+        }
+
+        if (victorhugo__duplicateParagraphs.length || victorhugo__duplicateHeadings.length || victorhugo__repeatedPhrases.length) {
           var repetitionParts = [];
           if (victorhugo__duplicateParagraphs.length) {
             repetitionParts.push(victorhugo__duplicateParagraphs.length + " repeated paragraph" + (victorhugo__duplicateParagraphs.length === 1 ? "" : "s"));
@@ -1109,9 +1171,15 @@
           if (victorhugo__duplicateHeadings.length) {
             repetitionParts.push(victorhugo__duplicateHeadings.length + " repeated heading" + (victorhugo__duplicateHeadings.length === 1 ? "" : "s"));
           }
-          $("#victorhugo__content_repetition").text("Content repetition found: " + repetitionParts.join(" and ") + ". Review repeated text so each section adds distinct value.").addClass('improve');
+          if (victorhugo__warningPhrases.length) {
+            repetitionParts.push(victorhugo__warningPhrases.length + " phrase" + (victorhugo__warningPhrases.length === 1 ? "" : "s") + " repeated 5+ times");
+          }
+          if (victorhugo__hintPhrases.length) {
+            repetitionParts.push(victorhugo__hintPhrases.length + " phrase" + (victorhugo__hintPhrases.length === 1 ? "" : "s") + " repeated 3-4 times");
+          }
+          $("#victorhugo__content_repetition").html("Content repetition found: " + repetitionParts.join(", ") + ". Review repeated text so each section adds distinct value." + victorhugo__repeatedPhrasesHtml).addClass(victorhugo__warningPhrases.length || victorhugo__duplicateParagraphs.length || victorhugo__duplicateHeadings.length ? 'improve' : 'hint');
         } else {
-          $("#victorhugo__content_repetition").text("No repeated paragraphs or headings found.").addClass('good').appendTo($("#victorhugo__content_repetition").parent());
+          $("#victorhugo__content_repetition").text("No repeated paragraphs, headings, or overused phrases found.").addClass('good').appendTo($("#victorhugo__content_repetition").parent());
         }
 
         function organizeVictorHugoFindings() {
