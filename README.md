@@ -51,15 +51,13 @@ With Victor Hugo, you will write optimized SEO content from the get-go, so you d
 
 ## Install
 
-Being a Hugo partial template, **Victor Hugo is prepared to work with any Hugo theme**. Besides jQuery, Victor Hugo has no other dependencies; it makes no server-side calls, it doesn't run anything funny on the backend nor needs a database. 
+Victor Hugo is a Hugo theme component that can be added alongside your existing theme. Besides jQuery, Victor Hugo has no other dependencies; it makes no server-side calls, it does not run anything on the backend, and it does not need a database.
 
-In fact, with Victor Hugo, you only need one file: 
+Add Victor Hugo as a theme or submodule and include it before your main theme:
 
-``
-victorhugo.html
-``
-
-This file contains **everything you need** to run Victor Hugo in your project. <a href="https://github.com/doncabreraphone/victorhugo/releases/tag/v1.0-beta">Download the release</a>.
+```toml
+theme = ["victorhugo", "your-theme"]
+```
 
 ### Dependencies
 
@@ -74,10 +72,11 @@ You will never see a trace of Victor Hugo in your public folder and, since it is
 
 ## Getting Started
 To use Victor Hugo, all you have to do is:
-1. Place the **victorhugo.html** partial under your ``layouts/partials`` folder.
-2. Call it with ``{{ partial "victorhugo.html" . }}`` somewhere before the ``</head>`` tag of your _article_ or _single page_ template.
+1. Add this repository under your Hugo site's `themes/victorhugo` directory.
+2. Add `victorhugo` to your `theme` list before your main theme.
+3. Call it with `{{ partial "victorhugo" . }}` in your base template.
 
-That's about it. Simple, isn't it?
+Victor Hugo only renders while `hugo server` is running.
 
 ### Configure Victor Hugo
 Victor Hugo is enabled by default when the partial is included in your local Hugo server. Add a focus keyword in the _front matter_ of any post you want Victor Hugo to run SEO checks for.
@@ -139,7 +138,6 @@ Incidentally, I am also a game developer:
 ## License
 
 Code and documentation under GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007. Read the LICENSE file included in this repository for the complete version.
-
 
 
 

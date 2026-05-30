@@ -1590,22 +1590,22 @@
     </a>
 
     <div id="victorhugo__warning" style="
-    overflow-y: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
         box-shadow: 0 0 25px #ccc;
         position: fixed;
         height: 100vh;
+        max-height: 100vh;
         left: 0;
         width: 520px;
         z-index: 1000000;
         background: #fff;
         padding: 18px 25px;
+        box-sizing: border-box;
         font-family: Arial, Helvetica, sans-serif !important;
         color: #444;
-
-        
-
-    display: table;
-    text-align: center;
+        display: block;
+        text-align: center;
     ">
     <a href="#" id="victorhugo__warning_close" aria-label="Close Victor Hugo warning" style="
       position: absolute;
@@ -1622,8 +1622,8 @@
     </a>
 
     <div style="
-        display: table-cell;
-        vertical-align: middle;
+        display: block;
+        padding: 2rem 0;
         text-align: center;
     ">
 
@@ -1746,7 +1746,7 @@
       });
       document.getElementById('victorhugo__warning_open').addEventListener('click', function(event) {
         event.preventDefault();
-        document.getElementById('victorhugo__warning').style.display = 'table';
+        document.getElementById('victorhugo__warning').style.display = 'block';
         document.getElementById('victorhugo__warning_open').style.display = 'none';
       });
     </script>
