@@ -1,48 +1,27 @@
-<p align="center" style="margin-bottom: 0;">
-  <a href="https://github.com/doncabreraphone/victorhugo/">
-    <img src="https://raw.githubusercontent.com/doncabreraphone/victorhugo/master/misc/victorhugo__logo.png" alt="Victor Hugo logo" width="260" height="254" style="margin-bottom: -10px;">
-  </a>
-</p>
+# Victor Hugo 2.0
 
-<p align="center" style="margin:0 ; padding: 0;">
-<img src="https://raw.githubusercontent.com/doncabreraphone/victorhugo/8946bd99f351d6c35b643eda497d0b21b1537a48/misc/vh_font.svg">
-</p>
+![Victor Hugo logo](misc/victorhugo__logo.png)
 
-<p align="center">
-  The first and only search engine optimization plug-in for the Hugo static site generator framework.<br>Victor Hugo helps you write good SEO content, the easy way.
-  <br>
-  <br>
-  <a href="https://github.com/doncabreraphone/victorhugo/issues">Report bug</a>
-    ·
-  <a href="https://github.com/doncabreraphone/victorhugo/blob/master/misc/hugo-seo-snippets.md">Seo Snippets</a>
-    ·
-  <a href="#say-thanks">Say Thanks</a>
-  
-</p>
+![Victor Hugo wordmark](misc/vh_font.svg)
 
- <!-- <video style="width:100%; margin: 15px 0;" controls>
-  <source src="https://i.imgur.com/2o0sjKY.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>  -->
+The local search engine optimization plug-in for the [Hugo](https://gohugo.io/) static site generator framework. Victor Hugo helps you write good SEO content, the easy way.
 
-<b><span style="color:red">•</span> UPDATE: I am currently in the process of making Victor Hugo a standalone tool that can be used with any static website.</b>
+[Report bug](https://github.com/aharchitect/victorhugo/issues) | [SEO Snippets](misc/hugo-seo-snippets.md) | [Say Thanks](#say-thanks)
 
 ## Overview
 
-Victor Hugo is a SEO plugin for <a href="https://gohugo.io/">Hugo</a>, the world’s fastest framework for building websites. It audits your content as you write it and gives you an estimate based on best SEO practices, so you can improve your SERP (Search Engine Results Pages).
+**Victor Hugo** is a SEO plugin for [Hugo](https://gohugo.io/), the world's fastest framework for building websites. It audits your content as you write it and gives you an estimate based on best SEO practices, so you can improve your SERP (Search Engine Results Pages).
 
 **Victor Hugo uses no browser extensions, no external services, no installs. It lives in a simple partial. One line of code and you are ready to write SEO-friendly content.**
 
-<p style="text-align:center;border:1px solid #ccc;border-radius:4px;margin:6px 0;">
-<img src="https://github.com/doncabreraphone/victorhugo/blob/master/misc/victorhugo_readme_img.jpg">
-</p>
+![Victor Hugo SEO audit panel](misc/victorhugo_readme_preview.png)
 
 When writing a blog post, Victor Hugo will:
 * Check for stop words in your page slug.
 * Check for passive voice in your copy.
 * Make sure you optimize your content for google and other search engines by using a keyword/keyphrase of your choosing.
 * Help you write SEO friendly meta descriptions
-* Run your copy through an included version of the <a href="https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests" target="_blank">Flesch Reading Ease Test</a>, and give you an easy-to-read score.
+* Run your copy through an included version of the [Flesch Reading Ease Test](https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests), and give you an easy-to-read score.
 
 ...and more, much more, right in your browser, without having to subscribe to any extra tool. 
 
@@ -51,7 +30,7 @@ With Victor Hugo, you will write optimized SEO content from the get-go, so you d
 
 ## Install
 
-Victor Hugo is a Hugo theme component that can be added alongside your existing theme. Besides jQuery, Victor Hugo has no other dependencies; it makes no server-side calls, it does not run anything on the backend, and it does not need a database.
+Victor Hugo is a [Hugo](https://gohugo.io/) theme component that can be added alongside your existing theme. Besides jQuery, Victor Hugo has no other dependencies; it makes no server-side calls, it does not run anything on the backend, and it does not need a database.
 
 Add Victor Hugo as a theme or submodule and include it before your main theme:
 
@@ -66,19 +45,22 @@ Victor Hugo needs jQuery installed, but don't despair: if you don't have a jQuer
 On the other hand, if you use jQuery and don't want Victor Hugo using the official CDN, you can easily configure it not to do so.
 
 ### Safety First Approach
-Thanks to the **.IsServer** directive, Victor Hugo will **never, ever get built into the public directory of your project**. The '.IsServer' directive makes sure Victor Hugo gets executed only when you are in Hugo's local built-in server.
+
+Thanks to the **.IsServer** directive of Hugo, Victor Hugo will **never, ever get built into the public directory of your project**. The '.IsServer' directive makes sure Victor Hugo gets executed only when you are in Hugo's local built-in server.
 
 You will never see a trace of Victor Hugo in your public folder and, since it is a standard Hugo partial template like any other, you can remove it anytime you want from your project by deleting it. 
 
 ## Getting Started
+
 To use Victor Hugo, all you have to do is:
-1. Add this repository under your Hugo site's `themes/victorhugo` directory.
+1. Add this repository under your [Hugo](https://gohugo.io/) site's `themes/victorhugo` directory.
 2. Add `victorhugo` to your `theme` list before your main theme.
 3. Call it with `{{ partial "victorhugo" . }}` in your base template.
 
 Victor Hugo only renders while `hugo server` is running.
 
 ### Configure Victor Hugo
+
 Victor Hugo is enabled by default when the partial is included in your local Hugo server. Add a focus keyword in the _front matter_ of any post you want Victor Hugo to run SEO checks for.
 
 ```
@@ -92,6 +74,7 @@ focus_keyword: ""
 **Victor_Hugo_Clean:** accepts true or false. If true, it will not import jQuery. If it is set to false, it will import jQuery. Note that the jQuery Library won't be added to your project, it will only be used through jQuery's official CDN and it is necessary for Victor Hugo to run.
 
 ### Examples
+
 ```
 focus_keyword: "Yoast Plugin for WordPress"
 ```
@@ -113,33 +96,14 @@ Victor Hugo will help you write content that ranks with your Focus Keyword or Fo
 That's it, you can now start using Victor Hugo and ranking like a champ!
 
 ## Say thanks
-This plugin was put together by someone who doesn't code, at all. I am fiction writer, so those purists of you will excuse the clumsiness of my code. I put this project together in less than 48hs and had no time to go clean about it.
 
-It is what it is. 
+This version of Victor Hugo is a fork of [Javier Cabrera's original plugin](https://github.com/doncabreraphone/victorhugo). Javier created a charming and useful idea: a local SEO assistant that lives inside a Hugo site and helps authors while they write. Thank you, Javier, for putting the first version into the world.
 
-If you want to contribute to this project, by all means, feel free to do so from the Issues tab. 
+I liked the project and its results, so I adapted it to my own workflow, fixed some calculations, and improved the usability for theme-based Hugo integration.
 
-If you feel like saying thanks, be a sport, buy one of my books:
-
-* https://javiercabrerabooks.com/
-
-Or subscribe / spread the word about **Free Bundle Magazine**, a Fantasy & Sci-Fi magazine I edit along with some very intersting people.
-
-* https://thefreebundle.com/
-
-You can also send me a Twitter message and more from here:
-
-* https://t.co/ouXDeMGfcj?amp=1
-
-Incidentally, I am also a game developer:
-
-* https://cabrerabrothers.com/
+Feel free to use this fork. If it helps you, a short "Thanks" is always welcome on [LinkedIn](https://www.linkedin.com/in/andreas-hinkelmann-aha/), [GitHub](https://github.com/aharchitect), or the [Fediverse](https://mastodon.social/@aharchitect).
 
 ## License
 
-Code and documentation under GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007. Read the LICENSE file included in this repository for the complete version.
-
-
-
-
+Code and documentation under GNU GENERAL PUBLIC LICENSE Version 3. Read the [LICENSE](LICENSE) file included in this repository for the complete version.
 
