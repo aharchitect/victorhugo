@@ -258,7 +258,7 @@
         // Build textStandard
         var grade = [];
         var obj = {};
-        (function() {
+        window.addEventListener('DOMContentLoaded', function() {
           
           // FRE
           var fre = obj.fleschReadingEase = fleschReadingEase(text);
@@ -346,7 +346,7 @@
           );
           obj.medianGrade = medianGrade;
           
-        })();
+        });
 
         obj.readingTime = readingTime(text);
           
@@ -944,7 +944,7 @@
         var victorhugo__readingTime = readabilityFunction(victorhugo__pageText).readingTime;
 
         // SVG CIRCLES
-        (function() {
+        window.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('#victorhugo__audit .circular-progress').forEach((progress) => {    
 
               // First we set the score
@@ -999,7 +999,7 @@
 
               
             });  
-        })();
+        });
 
 
         
@@ -1642,6 +1642,11 @@
       {{ highlight "---\nfocus_keyword: \"your focus keyword\"\n---" "yaml" "" }}
     </div>
 
+    <div id="victorhugo__keyword_suggestions" style="text-align:left;margin:1.25rem auto;max-width:430px;display:none;">
+      <p style="margin:0 0 .5rem 0;font-weight:bold;">Suggested focus keywords:</p>
+      <div id="victorhugo__keyword_suggestion_list"></div>
+    </div>
+
     <p style="font-size:1rem;line-height:1.5;margin:1rem auto;max-width:410px;">
       Add one to run the Victor Hugo checks, or set <code>victor_hugo_disabled</code> to <code>true</code> to disable Victor Hugo for this page.
     </p>
@@ -1659,6 +1664,81 @@
 
     </div>
     <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        var article = document.querySelector('.post_body') || document.querySelector('main') || document.body;
+        var title = (document.querySelector('h1') || {}).innerText || document.title || '';
+        var description = (document.querySelector('meta[name="description"]') || {}).content || '';
+        var headings = Array.prototype.map.call(document.querySelectorAll('h1, h2, h3'), function(heading) {
+          return heading.innerText || '';
+        }).join(' ');
+        var firstParagraph = (article.querySelector('p') || {}).innerText || '';
+        var body = article.innerText || '';
+
+        var stopWords = {
+          a: true, about: true, above: true, after: true, again: true, all: true, also: true, am: true, an: true, and: true, any: true, are: true, as: true, at: true,
+          be: true, because: true, been: true, before: true, being: true, between: true, both: true, but: true, by: true,
+          can: true, could: true,
+          did: true, do: true, does: true, doing: true, down: true, during: true,
+          each: true, few: true, for: true, from: true, further: true,
+          had: true, has: true, have: true, having: true, he: true, her: true, here: true, hers: true, herself: true, him: true, himself: true, his: true, how: true,
+          i: true, if: true, in: true, into: true, is: true, it: true, its: true, itself: true,
+          just: true, me: true, more: true, most: true, my: true, myself: true,
+          no: true, nor: true, not: true, now: true, of: true, off: true, on: true, once: true, only: true, or: true, other: true, our: true, ours: true, ourselves: true, out: true, over: true, own: true,
+          same: true, she: true, should: true, so: true, some: true, such: true,
+          than: true, that: true, the: true, their: true, theirs: true, them: true, themselves: true, then: true, there: true, these: true, they: true, this: true, those: true, through: true, to: true, too: true,
+          under: true, until: true, up: true,
+          very: true,
+          was: true, we: true, were: true, what: true, when: true, where: true, which: true, while: true, who: true, whom: true, why: true, will: true, with: true, would: true,
+          you: true, your: true, yours: true, yourself: true, yourselves: true
+        };
+
+        var normalize = function(text) {
+          return (text || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+        };
+        var wordsFrom = function(text) {
+          return normalize(text).split(' ').filter(function(word) {
+            return word && word.length > 2 && !stopWords[word];
+          });
+        };
+        var addCandidates = function(scores, text, weight) {
+          var words = wordsFrom(text);
+          for (var size = 2; size <= 4; size += 1) {
+            for (var index = 0; index <= words.length - size; index += 1) {
+              var phraseWords = words.slice(index, index + size);
+              var phrase = phraseWords.join(' ');
+              var uniqueWords = phraseWords.filter(function(word, wordIndex) {
+                return phraseWords.indexOf(word) === wordIndex;
+              });
+              if (uniqueWords.length < Math.min(2, size)) continue;
+              scores[phrase] = (scores[phrase] || 0) + weight + size;
+            }
+          }
+        };
+        var scores = {};
+        addCandidates(scores, body, 1);
+        addCandidates(scores, description, 8);
+        addCandidates(scores, firstParagraph, 10);
+        addCandidates(scores, headings, 14);
+        addCandidates(scores, title, 20);
+
+        var suggestions = Object.keys(scores).filter(function(phrase) {
+          return phrase.length <= 55 && phrase.split(' ').length >= 2;
+        }).sort(function(left, right) {
+          return scores[right] - scores[left] || left.length - right.length;
+        }).slice(0, 5);
+
+        var suggestionsWrap = document.getElementById('victorhugo__keyword_suggestions');
+        var suggestionsList = document.getElementById('victorhugo__keyword_suggestion_list');
+        if (suggestions.length && suggestionsWrap && suggestionsList) {
+          suggestionsList.innerHTML = suggestions.map(function(phrase) {
+            var escapedPhrase = phrase.replace(/[&<>"']/g, function(character) {
+              return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character];
+            });
+            return '<pre style="margin:.75rem 0;padding:.85rem;background:#272822;color:#f8f8f2;overflow:auto;border-radius:4px;"><code>focus_keyword: "' + escapedPhrase + '"</code></pre>';
+          }).join('');
+          suggestionsWrap.style.display = 'block';
+        }
+      });
       document.getElementById('victorhugo__warning_close').addEventListener('click', function(event) {
         event.preventDefault();
         document.getElementById('victorhugo__warning').style.display = 'none';
