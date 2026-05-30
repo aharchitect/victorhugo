@@ -1623,25 +1623,37 @@
 
     <div style="
         display: table-cell;
-    vertical-align: middle;
-    text-align: left;
+        vertical-align: middle;
+        text-align: center;
     ">
 
-    <ul style="list-style-type: none; margin: 0; padding: 0 15px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="#dc3232" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16" aria-hidden="true" style="display:block;margin:0 auto 1.25rem auto;">
+      <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+    </svg>
 
-    <li style="text-indent: -1rem;  margin: 15px 0;"><span style="font-size: 2rem; vertical-align: middle; line-height: 1.2rem; color: #dc3232">•</span> You forgot to add the "Focus_Keyword" param in the front matter of this page. Add one to run the Victor Hugo checks, or set "victor_hugo_disabled" to true to disable Victor Hugo for this page. <a href="https://github.com/doncabreraphone/victorhugo/#configure-victor-hugo" target="_blank">Read More.</a></li>
+    <h2 style="margin:0 0 1rem 0;color:#333;font-size:1.4rem;">Focus keyword missing</h2>
 
-    </ul>
+    <p style="font-size:1rem;line-height:1.5;margin:0 auto 1rem auto;max-width:410px;">
+      Victor Hugo cannot analyse the SEO score for this page because no focus keyword is specified.
+    </p>
 
-    <hr>
-
-    <div style="text-align: center; font-size: small;">
-    <b>Tip:</b> whenever you see this icon <svg width="1em" height="1em" viewBox="0 0 16 16" style="display: inline-block;
-    vertical-align: middle;" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-      <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
-    </svg> you can hover with your mouse for a few seconds and a quick tip will be displayed. 
+    <div style="text-align:left;margin:1.25rem auto;max-width:430px;">
+      <p style="margin:0 0 .5rem 0;font-weight:bold;">Add a focus keyword:</p>
+      {{ highlight "---\nfocus_keyword: \"your focus keyword\"\n---" "yaml" "" }}
     </div>
+
+    <p style="font-size:1rem;line-height:1.5;margin:1rem auto;max-width:410px;">
+      Add one to run the Victor Hugo checks, or set <code>victor_hugo_disabled</code> to <code>true</code> to disable Victor Hugo for this page.
+    </p>
+
+    <div style="text-align:left;margin:1.25rem auto;max-width:430px;">
+      {{ highlight "---\nvictor_hugo_disabled: true\n---" "yaml" "" }}
+    </div>
+
+    <p style="font-size:.95rem;line-height:1.5;margin:1rem auto 0 auto;max-width:410px;">
+      The legacy <code>Focus_Keyword</code> parameter is still supported, but <code>focus_keyword</code> is recommended for YAML front matter.
+      <a href="https://github.com/aharchitect/victorhugo/#configure-victor-hugo" target="_blank" rel="noopener" style="color:#005ea8;font-weight:bold;text-decoration:underline;">Read more in the forked repository.</a>
+    </p>
 
     </div>
 
