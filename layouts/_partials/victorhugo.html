@@ -947,6 +947,83 @@
             victorhugo__readingTime = 0;
         }
 
+        function organizeVictorHugoFindings() {
+          var list = document.getElementById('victorhugo__list');
+          if (!list || list.dataset.grouped === 'true') return;
+
+          var items = Array.prototype.filter.call(list.children, function(item) {
+            return item.tagName === 'LI' && item.textContent.trim().length > 0;
+          });
+
+          var groups = [
+            {
+              key: 'errors',
+              title: 'Errors',
+              icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0"/></svg>',
+              open: true,
+              match: function(item) { return item.classList.contains('fix'); }
+            },
+            {
+              key: 'warnings',
+              title: 'Warnings',
+              icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>',
+              open: true,
+              match: function(item) { return item.classList.contains('improve'); }
+            },
+            {
+              key: 'info',
+              title: 'Info',
+              open: true,
+              match: function(item) {
+                return !item.classList.contains('fix') &&
+                  !item.classList.contains('improve') &&
+                  !item.classList.contains('good');
+              }
+            },
+            {
+              key: 'fulfilled',
+              title: 'Fulfilled',
+              icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M9.669.864 8 0 6.331.864l-1.858.282-.842 1.68-1.337 1.32L2.6 6l-.306 1.854 1.337 1.32.842 1.68 1.858.282L8 12l1.669-.864 1.858-.282.842-1.68 1.337-1.32L13.4 6l.306-1.854-1.337-1.32-.842-1.68zm1.196 1.193.684 1.365 1.086 1.072L12.387 6l.248 1.506-1.086 1.072-.684 1.365-1.51.229L8 10.874l-1.355-.702-1.51-.229-.684-1.365-1.086-1.072L3.614 6l-.25-1.506 1.087-1.072.684-1.365 1.51-.229L8 1.126l1.356.702z"/><path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1z"/></svg>',
+              open: false,
+              match: function(item) { return item.classList.contains('good'); }
+            }
+          ];
+
+          var groupedList = document.createElement('div');
+          groupedList.id = list.id;
+          groupedList.dataset.grouped = 'true';
+
+          list.parentNode.replaceChild(groupedList, list);
+
+          groups.forEach(function(group) {
+            var groupItems = items.filter(group.match);
+            if (!groupItems.length) return;
+
+            var details = document.createElement('details');
+            details.className = 'victorhugo_group victorhugo_group_' + group.key;
+            details.open = group.open;
+
+            var summary = document.createElement('summary');
+            var summaryLabel = document.createElement('span');
+            summaryLabel.className = 'victorhugo_group_label';
+            if (group.icon) {
+              summaryLabel.innerHTML = group.icon;
+            }
+            summaryLabel.appendChild(document.createTextNode(group.title + ' (' + groupItems.length + ')'));
+            summary.appendChild(summaryLabel);
+            details.appendChild(summary);
+
+            var nestedList = document.createElement('ul');
+            groupItems.forEach(function(item) {
+              nestedList.appendChild(item);
+            });
+            details.appendChild(nestedList);
+            groupedList.appendChild(details);
+          });
+        }
+
+        organizeVictorHugoFindings();
+
         // SVG CIRCLES
         window.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('#victorhugo__audit .circular-progress').forEach((progress) => {    
@@ -1148,6 +1225,73 @@
 
         #victorhugo ul li.improve::before {
             color: #ff7300;
+        }
+
+        #victorhugo .victorhugo_group {
+          border-top: 1px solid #eee;
+          margin: 0 0 1rem 0;
+          padding: 0;
+        }
+
+        #victorhugo .victorhugo_group:last-child {
+          border-bottom: 1px solid #eee;
+        }
+
+        #victorhugo .victorhugo_group summary {
+          cursor: pointer;
+          font-weight: 700;
+          padding: 0.75rem 0;
+          list-style: none;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        #victorhugo .victorhugo_group summary::-webkit-details-marker {
+          display: none;
+        }
+
+        #victorhugo .victorhugo_group summary::after {
+          content: "+";
+          color: #777;
+          font-weight: 700;
+          padding-left: 1rem;
+        }
+
+        #victorhugo .victorhugo_group[open] summary::after {
+          content: "-";
+        }
+
+        #victorhugo .victorhugo_group_label {
+          align-items: center;
+          display: inline-flex;
+          gap: 0.5rem;
+        }
+
+        #victorhugo .victorhugo_group_label svg {
+          flex: 0 0 auto;
+          height: 1rem;
+          width: 1rem;
+        }
+
+        #victorhugo .victorhugo_group ul {
+          padding: 0 0 0 25px;
+        }
+
+        #victorhugo .victorhugo_group_errors summary {
+          color: #dc3232;
+        }
+
+        #victorhugo .victorhugo_group_warnings summary {
+          color: #ff7300;
+        }
+
+        #victorhugo .victorhugo_group_info summary {
+          color: #555;
+        }
+
+        #victorhugo .victorhugo_group_fulfilled summary {
+          color: #4f9f23;
         }
 
         /* GOOGLE SNIPPET */
