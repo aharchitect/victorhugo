@@ -258,7 +258,6 @@
         // Build textStandard
         var grade = [];
         var obj = {};
-        window.addEventListener('DOMContentLoaded', function() {
           
           // FRE
           var fre = obj.fleschReadingEase = fleschReadingEase(text);
@@ -345,8 +344,6 @@
             (grade[midPoint-1] + grade[midPoint]) / 2.0
           );
           obj.medianGrade = medianGrade;
-          
-        });
 
         obj.readingTime = readingTime(text);
           
@@ -898,7 +895,11 @@
 
 
         /// READABILITY SCORE
-        var victorhugo__readability = readabilityFunction(victorhugo__pageText).fleschReadingEase;
+        var victorhugo__readabilityStats = readabilityFunction(victorhugo__pageText);
+        var victorhugo__readability = victorhugo__readabilityStats.fleschReadingEase;
+        if (!isFinite(victorhugo__readability)) {
+            victorhugo__readability = 0;
+        }
         var victorhugo__readabilitySchoolLevel = "";
         var victorhugo__readabilityNotes = "";
         var victorhugo__readabilityClass = "fix";
@@ -941,7 +942,10 @@
         }
         
         // TIME READING SCORE
-        var victorhugo__readingTime = readabilityFunction(victorhugo__pageText).readingTime;
+        var victorhugo__readingTime = victorhugo__readabilityStats.readingTime;
+        if (!isFinite(victorhugo__readingTime)) {
+            victorhugo__readingTime = 0;
+        }
 
         // SVG CIRCLES
         window.addEventListener('DOMContentLoaded', function() {
