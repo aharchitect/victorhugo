@@ -80,16 +80,15 @@ To use Victor Hugo, all you have to do is:
 That's about it. Simple, isn't it?
 
 ### Configure Victor Hugo
-You need to add these two Params in the _front matter_ of any post you want Victor Hugo to run SEO checks.
+Victor Hugo is enabled by default when the partial is included in your local Hugo server. Add a focus keyword in the _front matter_ of any post you want Victor Hugo to run SEO checks for.
 
 ```
-Victor_Hugo: "true"
 Focus_Keyword: ""
 ```
 
-**Victor_Hugo:** accepts true or false. Without this Param, Victor Hugo won't work.
-
 **Focus_Keyword:** the word or phrase Victor Hugo will use to run a check on your copy—including the SEO title, H1 tag, body copy, and images. This is the keyword or phrase that you want your post to be found for in search engines. Victor Hugo will let you know how well you have optimized your copy for this keyword or phrase.
+
+**victor_hugo_disabled:** accepts true or false. Set it to true in a page's front matter to disable Victor Hugo for that page.
 
 **Victor_Hugo_Clean:** accepts true or false. If true, it will not import jQuery. If it is set to false, it will import jQuery. Note that the jQuery Library won't be added to your project, it will only be used through jQuery's official CDN and it is necessary for Victor Hugo to run.
 
@@ -140,7 +139,6 @@ Incidentally, I am also a game developer:
 ## License
 
 Code and documentation under GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007. Read the LICENSE file included in this repository for the complete version.
-
 
 
 

@@ -1,9 +1,10 @@
 {{ if hugo.IsServer }}
-{{- $victorHugo := or (.Param "Victor_Hugo") (.Param "victor_hugo") -}}
+{{- $victorHugoDisabledParam := or (.Param "Victor_Hugo_disabled") (.Param "victor_hugo_disabled") -}}
+{{- $victorHugoDisabled := or (eq $victorHugoDisabledParam true) (eq $victorHugoDisabledParam "true") -}}
 {{- $focusKeyword := or (.Param "Focus_Keyword") (.Param "focus_keyword") -}}
 {{- $victorHugoClean := or (.Param "Victor_Hugo_clean") (site.Param "Victor_Hugo_clean") -}}
 
-{{ if $victorHugo }}
+{{ if not $victorHugoDisabled }}
 
     {{ if $focusKeyword }}
     <!-- Victor Hugo the SEO tool -->
@@ -1603,7 +1604,7 @@
 
     <ul style="list-style-type: none; margin: 0; padding: 0 15px;">
 
-    <li style="text-indent: -1rem;  margin: 15px 0;"><span style="font-size: 2rem; vertical-align: middle; line-height: 1.2rem; color: #dc3232">•</span> You forgot to add, either "Focus_Keyword", or "Victor_Hugo" params in the front matter of this page. <a href="https://github.com/doncabreraphone/victorhugo/#configure-victor-hugo" target="_blank">Read More.</a></li>
+    <li style="text-indent: -1rem;  margin: 15px 0;"><span style="font-size: 2rem; vertical-align: middle; line-height: 1.2rem; color: #dc3232">•</span> You forgot to add the "Focus_Keyword" param in the front matter of this page. Add one to run the Victor Hugo checks, or set "victor_hugo_disabled" to true to disable Victor Hugo for this page. <a href="https://github.com/doncabreraphone/victorhugo/#configure-victor-hugo" target="_blank">Read More.</a></li>
 
     </ul>
 
