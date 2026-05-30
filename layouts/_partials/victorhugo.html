@@ -628,6 +628,35 @@
         } else {
             $("#focusKeyword").html("No focus keyword was set for this page. If you do not set a focus keyword, no score can be calculated.").addClass('improve');
         }
+
+        var victorhugo__hasFrontMatterDate = {{ if isset .Params "date" }}true{{ else }}false{{ end }};
+        var victorhugo__hasFrontMatterLastmod = {{ if isset .Params "lastmod" }}true{{ else }}false{{ end }};
+        var victorhugo__hasFrontMatterDescription = {{ if isset .Params "description" }}true{{ else }}false{{ end }};
+        var victorhugo__hasFrontMatterCategories = {{ if .Params.categories }}true{{ else }}false{{ end }};
+
+        if (victorhugo__hasFrontMatterDate) {
+            $("#victorhugo__frontmatter_date").html("The front matter contains a <code>date</code> field.").addClass('good').appendTo($("#victorhugo__frontmatter_date").parent());
+        } else {
+            $("#victorhugo__frontmatter_date").html("The front matter is missing a <code>date</code> field. Add the original publication date so search engines and readers can understand the content timeline.").addClass('fix');
+        }
+
+        if (victorhugo__hasFrontMatterLastmod) {
+            $("#victorhugo__frontmatter_lastmod").html("The front matter contains a <code>lastmod</code> field.").addClass('good').appendTo($("#victorhugo__frontmatter_lastmod").parent());
+        } else {
+            $("#victorhugo__frontmatter_lastmod").html("The front matter is missing a <code>lastmod</code> field. Add the last meaningful update date so freshness signals are explicit.").addClass('fix');
+        }
+
+        if (victorhugo__hasFrontMatterDescription) {
+            $("#victorhugo__frontmatter_description").html("The front matter contains a <code>description</code> field.").addClass('good').appendTo($("#victorhugo__frontmatter_description").parent());
+        } else {
+            $("#victorhugo__frontmatter_description").html("The front matter is missing a <code>description</code> field. Add one so Hugo can render a stable SEO meta description.").addClass('fix');
+        }
+
+        if (victorhugo__hasFrontMatterCategories) {
+            $("#victorhugo__frontmatter_categories").html("The front matter contains <code>categories</code>.").addClass('good').appendTo($("#victorhugo__frontmatter_categories").parent());
+        } else {
+            $("#victorhugo__frontmatter_categories").html("The front matter has no <code>categories</code>. Categories are useful for site structure, archives, and topical context.").addClass('improve');
+        }
       
         if (focusKeyword != ""){
             $("#stopword").show();
@@ -1497,6 +1526,28 @@
             text-decoration: none;
         }
 
+        #victorhugo code {
+          background: #f2f2f2;
+          border-radius: 3px;
+          display: inline;
+          font-family: Monaco, Consolas, "Liberation Mono", monospace;
+          font-size: 0.9em;
+          font-weight: 400;
+          line-height: inherit;
+          overflow: visible;
+          padding: 0.1em 0.3em;
+          white-space: normal;
+          word-break: normal;
+        }
+
+        #victorhugo pre code {
+          background: transparent;
+          display: inline;
+          overflow: visible;
+          padding: 0;
+          white-space: inherit;
+        }
+
         #victorhugo ul {
             list-style: none; /* Remove default bullets */
             margin: 0;
@@ -1970,6 +2021,10 @@
         <div class="victorhugo_panel">
             <ul id="victorhugo__list">
                 <li id="focusKeyword"></li>
+                <li id="victorhugo__frontmatter_date"></li>
+                <li id="victorhugo__frontmatter_lastmod"></li>
+                <li id="victorhugo__frontmatter_description"></li>
+                <li id="victorhugo__frontmatter_categories"></li>
                 <li id="stopword"></li>
                 <li id="slug"></li>
                 <li id="victorhugo__content"></li>
