@@ -71,6 +71,8 @@ focus_keyword: ""
 
 **victor_hugo_disabled:** accepts true or false. Set it to true in a page's front matter to disable Victor Hugo for that page.
 
+**victor_hugo_readability_threshold:** accepts a number and can be set globally in your site params or per page. It defines the minimum Flesch Reading Ease score that should count as fulfilled. The default is `60`; for expert or college-level content, `40` can be a better fit.
+
 **Victor_Hugo_Clean:** accepts true or false. If true, it will not import jQuery. If it is set to false, it will import jQuery. Note that the jQuery Library won't be added to your project, it will only be used through jQuery's official CDN and it is necessary for Victor Hugo to run.
 
 ### Examples
@@ -106,4 +108,3 @@ Feel free to use this fork. If it helps you, a short "Thanks" is always welcome 
 ## License
 
 Code and documentation under GNU GENERAL PUBLIC LICENSE Version 3. Read the [LICENSE](LICENSE) file included in this repository for the complete version.
-

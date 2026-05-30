@@ -3,6 +3,7 @@
 {{- $victorHugoDisabled := or (eq $victorHugoDisabledParam true) (eq $victorHugoDisabledParam "true") -}}
 {{- $focusKeyword := or (.Param "Focus_Keyword") (.Param "focus_keyword") -}}
 {{- $victorHugoClean := or (.Param "Victor_Hugo_clean") (site.Param "Victor_Hugo_clean") -}}
+{{- $victorHugoReadabilityThreshold := float (or (.Param "victor_hugo_readability_threshold") (site.Param "victor_hugo_readability_threshold") 60) -}}
 
 {{ if not $victorHugoDisabled }}
 
@@ -932,6 +933,7 @@
         var victorhugo__readabilitySchoolLevel = "";
         var victorhugo__readabilityNotes = "";
         var victorhugo__readabilityClass = "fix";
+        var victorhugo__readabilityThreshold = {{ $victorHugoReadabilityThreshold }};
 
         if (victorhugo__readability >= 90) {
             victorhugo__readabilitySchoolLevel = "5th grade";
@@ -965,7 +967,15 @@
             victorhugo__readabilityNotes = "Extremely difficult to read. Best understood by subject-matter experts.";
         }
 
-        $("#victorhugo__readability").html( "Flesch Reading Ease score: <b>" + victorhugo__readability.toFixed(3) +"</b>. School level: <b>" + victorhugo__readabilitySchoolLevel + "</b>. " + victorhugo__readabilityNotes + " <a href='https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests' target='_blank'>About the Flesch Reading Ease test</a>." ).addClass(victorhugo__readabilityClass);
+        if (victorhugo__readability >= victorhugo__readabilityThreshold) {
+            victorhugo__readabilityClass = "good";
+        } else if (victorhugo__readability >= Math.max(0, victorhugo__readabilityThreshold - 10)) {
+            victorhugo__readabilityClass = "hint";
+        } else {
+            victorhugo__readabilityClass = "improve";
+        }
+
+        $("#victorhugo__readability").html( "Flesch Reading Ease score: <b>" + victorhugo__readability.toFixed(3) +"</b>. Target: <b>" + victorhugo__readabilityThreshold + "+</b>. School level: <b>" + victorhugo__readabilitySchoolLevel + "</b>. " + victorhugo__readabilityNotes + " <a href='https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests' target='_blank'>About the Flesch Reading Ease test</a>." ).addClass(victorhugo__readabilityClass);
         if (victorhugo__readabilityClass === "good") {
             $("#victorhugo__readability").appendTo($("#victorhugo__readability").parent());
         }
