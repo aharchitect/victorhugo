@@ -83,10 +83,10 @@ That's about it. Simple, isn't it?
 Victor Hugo is enabled by default when the partial is included in your local Hugo server. Add a focus keyword in the _front matter_ of any post you want Victor Hugo to run SEO checks for.
 
 ```
-Focus_Keyword: ""
+focus_keyword: ""
 ```
 
-**Focus_Keyword:** the word or phrase Victor Hugo will use to run a check on your copy—including the SEO title, H1 tag, body copy, and images. This is the keyword or phrase that you want your post to be found for in search engines. Victor Hugo will let you know how well you have optimized your copy for this keyword or phrase.
+**focus_keyword:** the word or phrase Victor Hugo will use to run a check on your copy—including the SEO title, H1 tag, body copy, and images. This is the keyword or phrase that you want your post to be found for in search engines. Victor Hugo will let you know how well you have optimized your copy for this keyword or phrase.
 
 **victor_hugo_disabled:** accepts true or false. Set it to true in a page's front matter to disable Victor Hugo for that page.
 
@@ -94,19 +94,19 @@ Focus_Keyword: ""
 
 ### Examples
 ```
-Focus_Keyword: "Yoast Plugin for WordPress"
+focus_keyword: "Yoast Plugin for WordPress"
 ```
 Another example:
 ```
-Focus_Keyword: "Free Bundle Magazine"
+focus_keyword: "Free Bundle Magazine"
 ```
 One more:
 ```
-Focus_Keyword: "Writing Github Documentation"
+focus_keyword: "Writing Github Documentation"
 ```
 Last one, proimise:
 ```
-Focus_Keyword: "Gladiator"
+focus_keyword: "Gladiator"
 ```
 
 Victor Hugo will help you write content that ranks with your Focus Keyword or Focus Keyphrase in mind.
