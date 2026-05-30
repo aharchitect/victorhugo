@@ -868,9 +868,9 @@
             if (re == hugoIMGS) {
                 $("#victorhugo__content_imgs").text( "The images on this page contain alt attributes with the focus keyword." ).addClass("good").appendTo($("#victorhugo__content_imgs").parent());
             } else if (re == 0) {
-                $("#victorhugo__content_imgs").text( "The images in this page are missing the alt attributes." ).addClass("improve").prependTo($("#victorhugo__content_imgs").parent());
+                $("#victorhugo__content_imgs").text( "The images in this page are missing the alt attributes." ).removeClass("good").addClass("hint improve").prependTo($("#victorhugo__content_imgs").parent());
             } else {
-                $("#victorhugo__content_imgs").text( "Some of the images on this page do not have alt attributes containing the focus keyword." ).addClass("improve").prependTo($("#victorhugo__content_imgs").parent());
+                $("#victorhugo__content_imgs").text( "Some of the images on this page do not have alt attributes containing the focus keyword." ).removeClass("good").addClass("hint improve").prependTo($("#victorhugo__content_imgs").parent());
             }
 
         }
@@ -968,7 +968,10 @@
               title: 'Warnings',
               icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>',
               open: true,
-              match: function(item) { return item.classList.contains('improve'); }
+              match: function(item) {
+                return item.classList.contains('improve') &&
+                  !item.classList.contains('hint');
+              }
             },
             {
               key: 'info',
@@ -981,11 +984,28 @@
               }
             },
             {
+              key: 'hints',
+              title: 'Hints',
+              icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg>',
+              open: false,
+              match: function(item) {
+                return item.classList.contains('hint') ||
+                  (
+                    item.classList.contains('good') &&
+                    item.classList.contains('improve')
+                  );
+              }
+            },
+            {
               key: 'fulfilled',
               title: 'Fulfilled',
               icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M9.669.864 8 0 6.331.864l-1.858.282-.842 1.68-1.337 1.32L2.6 6l-.306 1.854 1.337 1.32.842 1.68 1.858.282L8 12l1.669-.864 1.858-.282.842-1.68 1.337-1.32L13.4 6l.306-1.854-1.337-1.32-.842-1.68zm1.196 1.193.684 1.365 1.086 1.072L12.387 6l.248 1.506-1.086 1.072-.684 1.365-1.51.229L8 10.874l-1.355-.702-1.51-.229-.684-1.365-1.086-1.072L3.614 6l-.25-1.506 1.087-1.072.684-1.365 1.51-.229L8 1.126l1.356.702z"/><path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1z"/></svg>',
               open: false,
-              match: function(item) { return item.classList.contains('good'); }
+              match: function(item) {
+                return item.classList.contains('good') &&
+                  !item.classList.contains('improve') &&
+                  !item.classList.contains('hint');
+              }
             }
           ];
 
@@ -996,7 +1016,9 @@
           list.parentNode.replaceChild(groupedList, list);
 
           groups.forEach(function(group) {
-            var groupItems = items.filter(group.match);
+            var groupItems = items.filter(function(item) {
+              return !item.dataset.victorhugoGrouped && group.match(item);
+            });
             if (!groupItems.length) return;
 
             var details = document.createElement('details');
@@ -1015,6 +1037,7 @@
 
             var nestedList = document.createElement('ul');
             groupItems.forEach(function(item) {
+              item.dataset.victorhugoGrouped = 'true';
               nestedList.appendChild(item);
             });
             details.appendChild(nestedList);
@@ -1025,61 +1048,51 @@
         organizeVictorHugoFindings();
 
         // SVG CIRCLES
-        window.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('#victorhugo__audit .circular-progress').forEach((progress) => {    
+        document.querySelectorAll('#victorhugo__audit .circular-progress').forEach((progress) => {
 
-              // First we set the score
-              var victorhugo__seoScoreCircle = $('#victorhugo__seoScore_circle');
-              var victorhugo__readingCircle = $('#victorhugo__readingTime_circle');
+          // First we set the score
+          var victorhugo__seoScoreCircle = $('#victorhugo__seoScore_circle');
+          var victorhugo__readingCircle = $('#victorhugo__readingTime_circle');
 
-              victorhugo__readingPercent = Math.round( ( victorhugo__readingTime * 100 / 270 )   );
+          var victorhugo__readingPercent = Math.round( ( victorhugo__readingTime * 100 / 270 )   );
+          victorhugo__readingCircle.attr("data-percentage", victorhugo__readingPercent);
 
-              
-              victorhugo__readingCircle.attr("data-percentage", victorhugo__readingPercent);  
-              
+          /// SEO SCORE
+          /// Has to be calcualted at the end since we went through every other factor
+          var victorhugo__seoScore = $('#victorhugo__list .good').length;
 
-        
-        /// SEO SCORE
-        /// Has to be calcualted at the end since we went through every other factor
-        var victorhugo__seoScore = $('#victorhugo__list .good').length;
+          var victorhugo__seoScorePercent = Math.round( ( victorhugo__seoScore * 100 / 13 )   );
 
-        victorhugo__seoScorePercent = Math.round( ( victorhugo__seoScore * 100 / 13 )   );
+          if (victorhugo__seoScore >= 0) {
+            victorhugo__seoScoreCircle.attr("data-percentage", victorhugo__seoScorePercent);
+          }
 
-        if (victorhugo__seoScore >= 0) {
-          victorhugo__seoScoreCircle.attr("data-percentage", victorhugo__seoScorePercent);  
-        }
-              
-              
+          // Now we start the animation
 
+          const percentage = progress.id === 'victorhugo__readingTime_circle'
+            ? victorhugo__readingPercent
+            : victorhugo__seoScorePercent;
+          progress.setAttribute('data-percentage', percentage);
+          const circle = progress.querySelector('.circle');
 
-              // Now we start the animation
+          if (percentage >= 100) {
+            progress.querySelector('.percentage').innerHTML = `100`;
+            circle.setAttribute('stroke-dasharray', `100, 100`);
+          } else {
+            progress.querySelector('.percentage').innerHTML = `${percentage}`;
+            circle.setAttribute('stroke-dasharray', `${percentage}, 100`);
+          }
 
-              const percentage = progress.id === 'victorhugo__readingTime_circle'
-                ? victorhugo__readingPercent
-                : victorhugo__seoScorePercent;
-              progress.setAttribute('data-percentage', percentage);
-              const circle = progress.querySelector('.circle');
-              
-              if (percentage >= 100) {
-                progress.querySelector('.percentage').innerHTML = `100`;
-                circle.setAttribute('stroke-dasharray', `100, 100`);                
-              } else {
-                progress.querySelector('.percentage').innerHTML = `${percentage}`;
-                circle.setAttribute('stroke-dasharray', `${percentage}, 100`);
-              }
+          circle.classList.add('-play');
 
-              circle.classList.add('-play');
+          if (percentage >= 70) {
+            circle.setAttribute("style", "stroke: #8fd739;");
+          } else if (percentage < 70 && percentage >= 45) {
+            circle.setAttribute("style", "stroke: #ffd636;");
+          } else if (percentage < 45) {
+            circle.setAttribute("style", "stroke: #f45a5a;");
+          }
 
-              if (percentage >= 70) {
-                circle.setAttribute("style", "stroke: #8fd739;");
-              } else if (percentage < 70 && percentage >= 45) {
-                circle.setAttribute("style", "stroke: #ffd636;");
-              } else if (percentage < 45) {
-                circle.setAttribute("style", "stroke: #f45a5a;");
-              }
-
-              
-            });  
         });
 
 
@@ -1097,8 +1110,13 @@
         $("#victorhugo__open").on('click', function (e) {
         e.stopPropagation();
         e.preventDefault();
-            $('#victorhugo').removeClass("victorhugo__close");
-            $('#victorhugo').addClass("victorhugo__open");
+            if ($('#victorhugo').hasClass("victorhugo__open")) {
+              $('#victorhugo').removeClass("victorhugo__open");
+              $('#victorhugo').addClass("victorhugo__close");
+            } else {
+              $('#victorhugo').removeClass("victorhugo__close");
+              $('#victorhugo').addClass("victorhugo__open");
+            }
         });
     
         
@@ -1227,6 +1245,10 @@
             color: #ff7300;
         }
 
+        #victorhugo ul li.hint::before {
+            color: #2271b1;
+        }
+
         #victorhugo .victorhugo_group {
           border-top: 1px solid #eee;
           margin: 0 0 1rem 0;
@@ -1284,6 +1306,10 @@
 
         #victorhugo .victorhugo_group_warnings summary {
           color: #ff7300;
+        }
+
+        #victorhugo .victorhugo_group_hints summary {
+          color: #2271b1;
         }
 
         #victorhugo .victorhugo_group_info summary {
