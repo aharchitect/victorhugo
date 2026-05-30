@@ -1730,12 +1730,12 @@
         var suggestionsWrap = document.getElementById('victorhugo__keyword_suggestions');
         var suggestionsList = document.getElementById('victorhugo__keyword_suggestion_list');
         if (suggestions.length && suggestionsWrap && suggestionsList) {
-          suggestionsList.innerHTML = suggestions.map(function(phrase) {
+          suggestionsList.innerHTML = '<ul style="margin:.5rem 0 0 0;padding:0;list-style:none;">' + suggestions.map(function(phrase) {
             var escapedPhrase = phrase.replace(/[&<>"']/g, function(character) {
               return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character];
             });
-            return '<pre style="margin:.75rem 0;padding:.85rem;background:#272822;color:#f8f8f2;overflow:auto;border-radius:4px;"><code>focus_keyword: "' + escapedPhrase + '"</code></pre>';
-          }).join('');
+            return '<li style="margin:.45rem 0;padding:.55rem .75rem;background:#f6f7f7;border-left:4px solid #dc3232;border-radius:3px;"><code>' + escapedPhrase + '</code></li>';
+          }).join('') + '</ul>';
           suggestionsWrap.style.display = 'block';
         }
       });
