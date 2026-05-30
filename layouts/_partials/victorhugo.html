@@ -1577,7 +1577,7 @@
     </div>
 
     {{ else }}
-    <div style="
+    <div id="victorhugo__warning" style="
     overflow-y: auto;
         box-shadow: 0 0 25px #ccc;
         position: fixed;
@@ -1595,6 +1595,19 @@
     display: table;
     text-align: center;
     ">
+    <a href="#" id="victorhugo__warning_close" aria-label="Close Victor Hugo warning" style="
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: #777;
+      text-decoration: none;
+      z-index: 1;
+    ">
+      <svg width="1.2rem" height="1.2rem" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">
+        <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+        <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+      </svg>
+    </a>
 
     <div style="
         display: table-cell;
@@ -1621,6 +1634,12 @@
     </div>
 
     </div>
+    <script>
+      document.getElementById('victorhugo__warning_close').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('victorhugo__warning').style.display = 'none';
+      });
+    </script>
     {{ end }}
 
     {{ else }}
