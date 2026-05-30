@@ -960,6 +960,7 @@
         function victorhugo__getContentSections(article) {
           var sections = [];
           var currentText = '';
+          var currentHeading = null;
           var nodes = article ? article.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,blockquote') : [];
 
           Array.prototype.forEach.call(nodes, function(node) {
@@ -968,9 +969,17 @@
 
             if (/^H[1-6]$/.test(node.tagName)) {
               if (currentText) {
-                sections.push(currentText);
+                sections.push({
+                  headingId: currentHeading ? currentHeading.id : '',
+                  headingText: currentHeading ? currentHeading.text : 'Start of content',
+                  text: currentText
+                });
                 currentText = '';
               }
+              currentHeading = {
+                id: node.id || '',
+                text: node.innerText || node.textContent || 'Untitled section'
+              };
               return;
             }
 
@@ -978,10 +987,20 @@
           });
 
           if (currentText) {
-            sections.push(currentText);
+            sections.push({
+              headingId: currentHeading ? currentHeading.id : '',
+              headingText: currentHeading ? currentHeading.text : 'Start of content',
+              text: currentText
+            });
           }
 
           return sections;
+        }
+
+        function victorhugo__escapeHtml(text) {
+          return String(text || '').replace(/[&<>"']/g, function(character) {
+            return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character];
+          });
         }
 
         function victorhugo__findDuplicates(values) {
@@ -1006,20 +1025,67 @@
         var victorhugo__wordCount = victorhugo__countWords(victorhugo__pageText);
         var victorhugo__headingCount = victorhugo__article ? victorhugo__article.querySelectorAll('h1,h2,h3,h4,h5,h6').length : 0;
         var victorhugo__contentSections = victorhugo__getContentSections(victorhugo__article);
-        var victorhugo__sectionWordCounts = victorhugo__contentSections.map(victorhugo__countWords);
+        var victorhugo__sectionWordCounts = victorhugo__contentSections.map(function(section) {
+          return victorhugo__countWords(section.text);
+        });
         var victorhugo__longestSectionWords = Math.max.apply(null, victorhugo__sectionWordCounts.concat([0]));
-        var victorhugo__contentDepthMessage = "Content depth: " + victorhugo__wordCount + " words, estimated reading time " + victorhugo__readingMinutes + " min, " + victorhugo__headingCount + " headings, longest section between headings " + victorhugo__longestSectionWords + " words. ";
+        var victorhugo__longSections = victorhugo__contentSections.map(function(section) {
+          return {
+            headingId: section.headingId,
+            headingText: section.headingText,
+            words: victorhugo__countWords(section.text)
+          };
+        }).filter(function(section) {
+          return section.words > 300;
+        }).sort(function(left, right) {
+          return right.words - left.words;
+        });
+        var victorhugo__sectionClass = "good";
+        var victorhugo__sectionMessage = "No content section between headings is longer than 300 words.";
+        var victorhugo__longSectionsHtml = '';
+
+        if (victorhugo__longestSectionWords > 500) {
+          victorhugo__sectionClass = "improve";
+          victorhugo__sectionMessage = "One section is longer than 500 words. Split it with a heading or shorter paragraphs.";
+        } else if (victorhugo__longestSectionWords > 300) {
+          victorhugo__sectionClass = "hint";
+          victorhugo__sectionMessage = "One section is longer than 300 words. Consider splitting it for easier scanning.";
+        }
+
+        if (victorhugo__longSections.length) {
+          victorhugo__longSectionsHtml = '<ul class="victorhugo_insight_sublist">' + victorhugo__longSections.map(function(section) {
+            var sectionTitle = victorhugo__escapeHtml(section.headingText);
+            var sectionTarget = section.headingId ? '<a href="#' + encodeURIComponent(section.headingId) + '">' + sectionTitle + '</a>' : sectionTitle;
+            return '<li>' + sectionTarget + ': <strong>' + section.words + ' words</strong></li>';
+          }).join('') + '</ul>';
+        }
+
+        $("#victorhugo__content_depth")
+          .addClass('insight')
+          .html(
+            'Content depth' +
+            '<ul class="victorhugo_insight_list">' +
+              '<li class="victorhugo_insight_item">Word count: <strong>' + victorhugo__wordCount + '</strong></li>' +
+              '<li class="victorhugo_insight_item">Estimated reading time: <strong>' + victorhugo__readingMinutes + ' min</strong></li>' +
+              '<li class="victorhugo_insight_item">Heading count: <strong>' + victorhugo__headingCount + '</strong></li>' +
+              '<li class="victorhugo_insight_item victorhugo_insight_item_' + victorhugo__sectionClass + '">Longest section between headings: <strong>' + victorhugo__longestSectionWords + ' words</strong>. ' + victorhugo__sectionMessage + victorhugo__longSectionsHtml + '</li>' +
+            '</ul>'
+          );
 
         if (victorhugo__wordCount < 300) {
-          $("#victorhugo__content_depth").text(victorhugo__contentDepthMessage + "This is below the recommended minimum of 300 words.").addClass('fix');
-        } else if (victorhugo__longestSectionWords > 500) {
-          $("#victorhugo__content_depth").text(victorhugo__contentDepthMessage + "One section is longer than 500 words. Split it with a heading or shorter paragraphs.").addClass('improve');
-        } else if (victorhugo__longestSectionWords > 300) {
-          $("#victorhugo__content_depth").text(victorhugo__contentDepthMessage + "One section is longer than 300 words. Consider splitting it for easier scanning.").addClass('hint');
+          $("#victorhugo__content").text( "The text contains " + victorhugo__wordCount + " words. This is far below the recommended minimum of 300 words. Add more content that is relevant for the topic. ").removeClass('good hint improve').addClass('fix');
         } else if (victorhugo__wordCount < 800) {
-          $("#victorhugo__content_depth").text(victorhugo__contentDepthMessage + "This is useful content, but the topic may benefit from more depth.").addClass('hint');
+          $("#victorhugo__content_depth .victorhugo_insight_list").append('<li class="victorhugo_insight_item victorhugo_insight_item_hint">The article has useful content, but the topic may benefit from more depth.</li>');
+        }
+
+        if (victorhugo__longestSectionWords > 800) {
+          $("#victorhugo__section_length").html("Some sections are longer than 800 words. This is hard to scan; split them with additional headings." + victorhugo__longSectionsHtml).addClass('fix');
+        } else if (victorhugo__longestSectionWords > 500) {
+          $("#victorhugo__section_length").html("Some sections are longer than 500 words. Split them with additional headings or shorter paragraphs." + victorhugo__longSectionsHtml).addClass('improve');
+        } else if (victorhugo__longestSectionWords > 300) {
+          $("#victorhugo__section_length").html("Some sections are longer than 300 words. Consider splitting them for easier scanning." + victorhugo__longSectionsHtml).addClass('hint');
         } else {
-          $("#victorhugo__content_depth").text(victorhugo__contentDepthMessage + "The content has solid depth and a scannable structure.").addClass('good').appendTo($("#victorhugo__content_depth").parent());
+          $("#victorhugo__section_length").text("No content section between headings is longer than 300 words.").addClass('good').appendTo($("#victorhugo__section_length").parent());
         }
 
         var victorhugo__paragraphTexts = Array.prototype.map.call(
@@ -1058,6 +1124,21 @@
 
           var groups = [
             {
+              key: 'insights',
+              title: 'Content Insights',
+              icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M7 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zM2 1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm0 8a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2zm.854-3.646a.5.5 0 0 1-.708 0l-1-1a.5.5 0 1 1 .708-.708l.646.647 1.646-1.647a.5.5 0 1 1 .708.708zm0 8a.5.5 0 0 1-.708 0l-1-1a.5.5 0 0 1 .708-.708l.646.647 1.646-1.647a.5.5 0 0 1 .708.708zM7 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm0-5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/></svg>',
+              open: false,
+              match: function(item) {
+                return item.classList.contains('insight') ||
+                  (
+                    !item.classList.contains('fix') &&
+                    !item.classList.contains('improve') &&
+                    !item.classList.contains('good') &&
+                    !item.classList.contains('hint')
+                  );
+              }
+            },
+            {
               key: 'errors',
               title: 'Errors',
               icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0"/></svg>',
@@ -1071,17 +1152,8 @@
               open: true,
               match: function(item) {
                 return item.classList.contains('improve') &&
-                  !item.classList.contains('hint');
-              }
-            },
-            {
-              key: 'info',
-              title: 'Info',
-              open: true,
-              match: function(item) {
-                return !item.classList.contains('fix') &&
-                  !item.classList.contains('improve') &&
-                  !item.classList.contains('good');
+                  !item.classList.contains('hint') &&
+                  !item.classList.contains('insight');
               }
             },
             {
@@ -1090,10 +1162,14 @@
               icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg>',
               open: false,
               match: function(item) {
-                return item.classList.contains('hint') ||
+                return (
+                  item.classList.contains('hint') &&
+                  !item.classList.contains('insight')
+                ) ||
                   (
                     item.classList.contains('good') &&
-                    item.classList.contains('improve')
+                    item.classList.contains('improve') &&
+                    !item.classList.contains('insight')
                   );
               }
             },
@@ -1105,7 +1181,8 @@
               match: function(item) {
                 return item.classList.contains('good') &&
                   !item.classList.contains('improve') &&
-                  !item.classList.contains('hint');
+                  !item.classList.contains('hint') &&
+                  !item.classList.contains('insight');
               }
             }
           ];
@@ -1132,7 +1209,7 @@
             if (group.icon) {
               summaryLabel.innerHTML = group.icon;
             }
-            summaryLabel.appendChild(document.createTextNode(group.title + ' (' + groupItems.length + ')'));
+            summaryLabel.appendChild(document.createTextNode(group.title + (group.key === 'insights' ? '' : ' (' + groupItems.length + ')')));
             summary.appendChild(summaryLabel);
             details.appendChild(summary);
 
@@ -1156,8 +1233,8 @@
 
           /// SEO SCORE
           /// Has to be calcualted at the end since we went through every other factor
-          var victorhugo__seoScore = $('#victorhugo__list .good').length;
-          var victorhugo__seoChecks = $('#victorhugo__list li').length;
+          var victorhugo__seoScore = $('#victorhugo__list li.good[id]').length;
+          var victorhugo__seoChecks = $('#victorhugo__list li[id]').not('.insight').length;
 
           var victorhugo__seoScorePercent = Math.round( ( victorhugo__seoScore * 100 / Math.max(1, victorhugo__seoChecks) )   );
 
@@ -1391,6 +1468,63 @@
             color: #2271b1;
         }
 
+        #victorhugo ul li.insight::before,
+        #victorhugo .victorhugo_insight_list li::before {
+            content: none;
+        }
+
+        #victorhugo ul li.insight {
+          text-indent: 0;
+        }
+
+        #victorhugo .victorhugo_insight_list {
+          list-style: none;
+          margin: 0.65rem 0 0 0;
+          padding: 0;
+        }
+
+        #victorhugo .victorhugo_insight_list .victorhugo_insight_item {
+          background: #f6f7f7;
+          border-left: 4px solid #2271b1;
+          border-radius: 3px;
+          line-height: 1.35;
+          margin: 0.45rem 0;
+          padding: 0.55rem 0.75rem;
+          text-indent: 0;
+        }
+
+        #victorhugo .victorhugo_insight_list .victorhugo_insight_item_good {
+          border-left-color: #7ad03a;
+        }
+
+        #victorhugo .victorhugo_insight_list .victorhugo_insight_item_hint {
+          border-left-color: #2271b1;
+        }
+
+        #victorhugo .victorhugo_insight_list .victorhugo_insight_item_improve {
+          border-left-color: #ff7300;
+        }
+
+        #victorhugo .victorhugo_insight_sublist {
+          list-style: none;
+          margin: 0.55rem 0 0 0;
+          padding: 0;
+        }
+
+        #victorhugo .victorhugo_insight_sublist li {
+          background: #fff;
+          border-left: 3px solid currentColor;
+          border-radius: 3px;
+          line-height: 1.35;
+          margin: 0.4rem 0 0 0;
+          padding: 0.45rem 0.6rem;
+          text-indent: 0;
+        }
+
+        #victorhugo .victorhugo_insight_sublist li::before {
+          content: none;
+        }
+
         #victorhugo .victorhugo_group {
           border-top: 1px solid #eee;
           margin: 0 0 1rem 0;
@@ -1446,16 +1580,16 @@
           color: #dc3232;
         }
 
+        #victorhugo .victorhugo_group_insights summary {
+          color: #2271b1;
+        }
+
         #victorhugo .victorhugo_group_warnings summary {
           color: #ff7300;
         }
 
         #victorhugo .victorhugo_group_hints summary {
           color: #2271b1;
-        }
-
-        #victorhugo .victorhugo_group_info summary {
-          color: #555;
         }
 
         #victorhugo .victorhugo_group_fulfilled summary {
@@ -1772,6 +1906,7 @@
                 <li id="slug"></li>
                 <li id="victorhugo__content"></li>
                 <li id="victorhugo__content_depth"></li>
+                <li id="victorhugo__section_length"></li>
                 <li id="victorhugo__content_repetition"></li>
                 <li id="meta__description"></li>
                 <li id="victorhugo__content_links"></li>
